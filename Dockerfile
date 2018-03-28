@@ -79,6 +79,13 @@ RUN set -x \
 			go build -buildmode=pie -o /usr/local/bin/registry-v2-schema1 github.com/docker/distribution/cmd/registry; \
 		;; \
 	   esac \
+	&& TEMPDIR="$(mktemp -d)" \
+	&& mv /usr/local/go $TEMPDIR \
+	&& export GOROOT_BOOTSTRAP=$TEMPDIR/go \
+	&& cd /usr/local \
+	&& git clone --no-checkout https://go.googlesource.com/go \
+	&& cd go && git checkout master && cd src && ./make.bash 2>&1 \
+	&& rm -rf $TEMPDIR \
 	&& rm -rf "$GOPATH"
 
 
