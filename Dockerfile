@@ -25,6 +25,15 @@
 #
 
 FROM golang:1.12.1 AS base
+RUN set -x \
+	&& TEMPDIR="$(mktemp -d)" \
+	&& mv /usr/local/go $TEMPDIR \
+	&& export GOROOT_BOOTSTRAP=$TEMPDIR/go \
+	&& cd /usr/local \
+	&& git clone --no-checkout https://go.googlesource.com/go \
+	&& cd go && git checkout master && cd src && ./make.bash 2>&1 \
+	&& rm -rf $TEMPDIR
+ENV GO111MODULE=off
 # allow replacing httpredir or deb mirror
 ARG APT_MIRROR=deb.debian.org
 RUN sed -ri "s/(httpredir|deb).debian.org/$APT_MIRROR/g" /etc/apt/sources.list
