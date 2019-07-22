@@ -11,6 +11,15 @@ RUN echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.con
 ARG APT_MIRROR
 RUN sed -ri "s/(httpredir|deb).debian.org/${APT_MIRROR:-deb.debian.org}/g" /etc/apt/sources.list \
  && sed -ri "s/(security).debian.org/${APT_MIRROR:-security.debian.org}/g" /etc/apt/sources.list
+
+RUN set -x \
+	&& TEMPDIR="$(mktemp -d)" \
+	&& mv /usr/local/go $TEMPDIR \
+	&& export GOROOT_BOOTSTRAP=$TEMPDIR/go \
+	&& cd /usr/local \
+	&& git clone --no-checkout https://go.googlesource.com/go \
+	&& cd go && git checkout master && cd src && ./make.bash 2>&1 \
+	&& rm -rf $TEMPDIR
 ENV GO111MODULE=off
 
 FROM base AS criu
